@@ -14,7 +14,7 @@ func (b *Bot) handleCommand(update tgbotapi.Update, r *radarr.Radarr) {
 
 	chatID, err := b.getChatID(update)
 	if err != nil {
-		fmt.Printf("Cannot handle command: %v", err)
+		fmt.Printf("Не удалось обработать команду: %v", err)
 		return
 	}
 
@@ -36,7 +36,7 @@ func (b *Bot) handleCommand(update tgbotapi.Update, r *radarr.Radarr) {
 
 	case "clear", "cancel", "stop":
 		b.clearState(update)
-		msg.Text = "All commands have been cleared"
+		msg.Text = "Все команды сброшены"
 		b.sendMessage(msg)
 
 	case "diskspace", "disk", "free", "rootfolder", "rootfolders":
@@ -66,7 +66,7 @@ func (b *Bot) handleCommand(update tgbotapi.Update, r *radarr.Radarr) {
 			break
 		}
 		if len(upcoming) == 0 {
-			msg.Text = "no upcoming releases in the next 30 days"
+			msg.Text = "В ближайшие 30 дней релизов нет"
 			b.sendMessage(msg)
 			break
 		}
@@ -84,7 +84,7 @@ func (b *Bot) handleCommand(update tgbotapi.Update, r *radarr.Radarr) {
 			b.sendMessage(msg)
 			break
 		}
-		msg.Text = "RSS sync started"
+		msg.Text = "RSS-синхронизация запущена"
 		b.sendMessage(msg)
 
 	case "searchmonitored":
@@ -112,7 +112,7 @@ func (b *Bot) handleCommand(update tgbotapi.Update, r *radarr.Radarr) {
 			b.sendMessage(msg)
 			break
 		}
-		msg.Text = "Search for monitored movies started"
+		msg.Text = "Поиск отслеживаемых фильмов запущен"
 		b.sendMessage(msg)
 
 	case "updateAll", "updateall":
@@ -138,7 +138,7 @@ func (b *Bot) handleCommand(update tgbotapi.Update, r *radarr.Radarr) {
 			b.sendMessage(msg)
 			break
 		}
-		msg.Text = "Update All started"
+		msg.Text = "Обновление всех фильмов запущено"
 		b.sendMessage(msg)
 
 	case "system", "System", "systemstatus", "Systemstatus":
@@ -153,23 +153,23 @@ func (b *Bot) handleCommand(update tgbotapi.Update, r *radarr.Radarr) {
 		b.sendMessage(msg)
 
 	case "getid", "id":
-		msg.Text = fmt.Sprintf("Your user ID: %d", chatID)
+		msg.Text = fmt.Sprintf("Ваш ID пользователя: %d", chatID)
 		b.sendMessage(msg)
 
 	default:
-		msg.Text = fmt.Sprintf("Hello %v!\n", update.Message.From)
-		msg.Text += "Here's a list of commands at your disposal:\n\n"
-		msg.Text += "/q [movie] - searches a movie \n"
-		msg.Text += "/library [movie] - manage movie(s)\n"
-		msg.Text += "/delete [movie] - deletes a movie\n"
-		msg.Text += "/clear - deletes all sent commands\n"
-		msg.Text += "/free  - lists free disk space \n"
-		msg.Text += "/up\t\t\t\t - lists upcoming movies in the next 30 days\n"
-		msg.Text += "/rss \t\t - performs a RSS sync\n"
-		msg.Text += "/searchmonitored - searches all monitored movies\n"
-		msg.Text += "/updateall - updates metadata and rescans files/folders\n"
-		msg.Text += "/system - shows your Radarr configuration\n"
-		msg.Text += "/id - shows your Telegram user ID"
+		msg.Text = fmt.Sprintf("Привет, %v!\n", update.Message.From)
+		msg.Text += "Доступные команды:\n\n"
+		msg.Text += "/q [фильм] - поиск фильма\n"
+		msg.Text += "/library [фильм] - управление фильмами\n"
+		msg.Text += "/delete [фильм] - удаление фильма\n"
+		msg.Text += "/clear - сбросить все отправленные команды\n"
+		msg.Text += "/free - свободное место на дисках\n"
+		msg.Text += "/up - ближайшие релизы на 30 дней вперёд\n"
+		msg.Text += "/rss - запустить RSS-синхронизацию\n"
+		msg.Text += "/searchmonitored - поиск всех отслеживаемых фильмов\n"
+		msg.Text += "/updateall - обновить метаданные и пересканировать файлы и папки\n"
+		msg.Text += "/system - конфигурация Radarr\n"
+		msg.Text += "/id - ваш Telegram ID"
 		b.sendMessage(msg)
 	}
 }

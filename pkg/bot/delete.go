@@ -25,7 +25,7 @@ const (
 )
 
 func (b *Bot) processDeleteCommand(update tgbotapi.Update, chatID int64, r *radarr.Radarr) {
-	msg := tgbotapi.NewMessage(chatID, "Handling delete command... please wait")
+	msg := tgbotapi.NewMessage(chatID, "Обрабатываю команду удаления... подождите")
 	message, _ := b.sendMessage(msg)
 
 	movies, err := r.GetMovie(0)
@@ -72,7 +72,7 @@ func (b *Bot) processDeleteCommand(update tgbotapi.Update, chatID int64, r *rada
 func (b *Bot) deleteMovie(update tgbotapi.Update) bool {
 	chatID, err := b.getChatID(update)
 	if err != nil {
-		fmt.Printf("Cannot delete movie: %v", err)
+		fmt.Printf("Не удалось удалить фильм: %v", err)
 		return false
 	}
 
@@ -178,12 +178,12 @@ func (b *Bot) showDeleteMovieSelection(command *userDeleteMovie) bool {
 	var keyboardConfirmCancel tgbotapi.InlineKeyboardMarkup
 	if len(command.selectedMovies) > 0 {
 		keyboardConfirmCancel = b.createKeyboard(
-			[]string{"Submit - Confirm Movies", "Cancel - clear command"},
+			[]string{"Подтвердить выбор", "Отмена, сбросить команду"},
 			[]string{DeleteMovieConfirm, DeleteMovieCancel},
 		)
 	} else {
 		keyboardConfirmCancel = b.createKeyboard(
-			[]string{"Cancel - clear command"},
+			[]string{"Отмена, сбросить команду"},
 			[]string{DeleteMovieCancel},
 		)
 	}
@@ -194,7 +194,7 @@ func (b *Bot) showDeleteMovieSelection(command *userDeleteMovie) bool {
 	editMsg := tgbotapi.NewEditMessageTextAndMarkup(
 		command.chatID,
 		command.messageID,
-		fmt.Sprintf(utils.Escape("Select the movie(s) you want to delete - page %d/%d"), page+1, totalPages),
+		fmt.Sprintf(utils.Escape("Выберите фильмы для удаления - страница %d/%d"), page+1, totalPages),
 		keyboard,
 	)
 	editMsg.ParseMode = "MarkdownV2"
@@ -206,11 +206,11 @@ func (b *Bot) showDeleteMovieSelection(command *userDeleteMovie) bool {
 
 func (b *Bot) handleDeleteSearchResults(searchResults []*radarr.Movie, command *userDeleteMovie) {
 	if len(searchResults) == 0 {
-		b.sendMessageWithEdit(command, "No movies found matching your search criteria")
+		b.sendMessageWithEdit(command, "По вашему запросу фильмы не найдены")
 		return
 	}
 	if len(searchResults) > 25 {
-		b.sendMessageWithEdit(command, "Result size too large, please narrow down your search criteria")
+		b.sendMessageWithEdit(command, "Слишком много результатов, уточните поисковый запрос")
 		return
 	}
 
@@ -222,7 +222,7 @@ func (b *Bot) handleDeleteSearchResults(searchResults []*radarr.Movie, command *
 		}
 	}
 	if len(moviesInLibrary) == 0 {
-		b.sendMessageWithEdit(command, "No movies found in your library")
+		b.sendMessageWithEdit(command, "В вашей библиотеке нет фильмов")
 		return
 	}
 
@@ -244,10 +244,10 @@ func (b *Bot) processMovieSelectionForDelete(command *userDeleteMovie) bool {
 	switch len(command.selectedMovies) {
 	case 1:
 		keyboard = b.createKeyboard(
-			[]string{"Yes, delete this movie", "Cancel, clear command", "\U0001F519"},
+			[]string{"Да, удалить этот фильм", "Отмена, сбросить команду", "\U0001F519"},
 			[]string{DeleteMovieYes, DeleteMovieCancel, DeleteMovieGoBack},
 		)
-		fmt.Fprintf(&messageText, "Do you want to delete the following movie including all files?\n\n")
+		fmt.Fprintf(&messageText, "Удалить следующий фильм вместе со всеми файлами?\n\n")
 		fmt.Fprintf(&messageText, "[%v](https://www.imdb.com/title/%v) \\- _%v_\n",
 			utils.Escape(command.selectedMovies[0].Title), command.selectedMovies[0].ImdbID, command.selectedMovies[0].Year)
 		disablePreview = false
@@ -255,7 +255,7 @@ func (b *Bot) processMovieSelectionForDelete(command *userDeleteMovie) bool {
 		return b.showDeleteMovieSelection(command)
 	default:
 		keyboard = b.createKeyboard(
-			[]string{"Yes, delete these movies", "Cancel, clear command", "\U0001F519"},
+			[]string{"Да, удалить эти фильмы", "Отмена, сбросить команду", "\U0001F519"},
 			[]string{DeleteMovieYes, DeleteMovieCancel, DeleteMovieGoBack},
 		)
 		// Sort the movies alphabetically based on their titles
@@ -263,7 +263,7 @@ func (b *Bot) processMovieSelectionForDelete(command *userDeleteMovie) bool {
 			return utils.IgnoreArticles(strings.ToLower(command.selectedMovies[i].Title)) < utils.IgnoreArticles(strings.ToLower(command.selectedMovies[j].Title))
 		})
 
-		fmt.Fprintf(&messageText, "Do you want to delete the following movies including all files?\n\n")
+		fmt.Fprintf(&messageText, "Удалить следующие фильмы вместе со всеми файлами?\n\n")
 		for _, movie := range command.selectedMovies {
 			fmt.Fprintf(&messageText, "[%v](https://www.imdb.com/title/%v) \\- _%v_\n",
 				utils.Escape(movie.Title), movie.ImdbID, movie.Year)
@@ -308,7 +308,7 @@ func (b *Bot) handleDeleteMovieYes(update tgbotapi.Update, command *userDeleteMo
 		return false
 	}
 
-	messageText := fmt.Sprintf("Deleted movies:\n- %v", strings.Join(deletedMovies, "\n- "))
+	messageText := fmt.Sprintf("Удалены фильмы:\n- %v", strings.Join(deletedMovies, "\n- "))
 	editMsg := tgbotapi.NewEditMessageText(
 		command.chatID,
 		command.messageID,

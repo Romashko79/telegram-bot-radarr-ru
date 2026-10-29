@@ -30,7 +30,7 @@ const (
 )
 
 func (b *Bot) processAddCommand(update tgbotapi.Update, chatID int64, r *radarr.Radarr) {
-	msg := tgbotapi.NewMessage(chatID, "Handling add movie command... please wait")
+	msg := tgbotapi.NewMessage(chatID, "Обрабатываю команду добавления фильма... подождите")
 	message, _ := b.sendMessage(msg)
 	command := userAddMovie{
 		chatID:    message.Chat.ID,
@@ -39,7 +39,7 @@ func (b *Bot) processAddCommand(update tgbotapi.Update, chatID int64, r *radarr.
 
 	criteria := update.Message.CommandArguments()
 	if len(criteria) < 1 {
-		b.sendMessageWithEdit(&command, "Please provide a search criteria /q [query]")
+		b.sendMessageWithEdit(&command, "Укажите поисковый запрос: /q [запрос]")
 		return
 	}
 	searchResults, err := r.Lookup(criteria)
@@ -50,11 +50,11 @@ func (b *Bot) processAddCommand(update tgbotapi.Update, chatID int64, r *radarr.
 	}
 
 	if len(searchResults) == 0 {
-		b.sendMessageWithEdit(&command, "No movies found matching your search criteria")
+		b.sendMessageWithEdit(&command, "По вашему запросу фильмы не найдены")
 		return
 	}
 	if len(searchResults) > 25 {
-		b.sendMessageWithEdit(&command, "Result size too large, please narrow down your search criteria")
+		b.sendMessageWithEdit(&command, "Слишком много результатов, уточните поисковый запрос")
 		return
 	}
 
@@ -72,7 +72,7 @@ func (b *Bot) processAddCommand(update tgbotapi.Update, chatID int64, r *radarr.
 func (b *Bot) addMovie(update tgbotapi.Update) bool {
 	chatID, err := b.getChatID(update)
 	if err != nil {
-		fmt.Printf("Cannot add movie: %v", err)
+		fmt.Printf("Не удалось добавить фильм: %v", err)
 		return false
 	}
 	command, exists := b.getAddMovieState(chatID)
@@ -184,16 +184,16 @@ func (b *Bot) showAddMovieSearchResults(command *userAddMovie) bool {
 
 	keyboard := b.createKeyboard(buttonLabels, buttonData)
 	keyboardCancel := b.createKeyboard(
-		[]string{"Cancel - clear command"},
+		[]string{"Отмена, сбросить команду"},
 		[]string{AddMovieCancel},
 	)
 	keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, keyboardCancel.InlineKeyboard...)
 
 	switch len(command.searchResults) {
 	case 1:
-		responseText = "*Movie found*\n\n"
+		responseText = "*Найден фильм*\n\n"
 	default:
-		responseText = fmt.Sprintf("*Found %d movies*\n\n", len(command.searchResults))
+		responseText = fmt.Sprintf("*Найдено фильмов: %d*\n\n", len(command.searchResults))
 	}
 	responseText += text.String()
 
@@ -215,11 +215,11 @@ func (b *Bot) addMovieDetails(update tgbotapi.Update, command *userAddMovie) boo
 	command.movie = command.searchResults[movieIDStr]
 
 	var text strings.Builder
-	fmt.Fprintf(&text, "Is this the correct movie?\n\n")
+	fmt.Fprintf(&text, "Это тот самый фильм?\n\n")
 	fmt.Fprintf(&text, "[%v](https://www.imdb.com/title/%v) \\- _%v_\n\n", utils.Escape(command.movie.Title), command.movie.ImdbID, command.movie.Year)
 
 	keyboard := b.createKeyboard(
-		[]string{"Yes, add this movie", "\U0001F519"},
+		[]string{"Да, добавить этот фильм", "\U0001F519"},
 		[]string{AddMovieYes, AddMovieGoBack},
 	)
 
@@ -239,7 +239,7 @@ func (b *Bot) addMovieDetails(update tgbotapi.Update, command *userAddMovie) boo
 func (b *Bot) handleAddMovieYes(update tgbotapi.Update, command *userAddMovie) bool {
 	//movie already in library...
 	if command.movie.ID != 0 {
-		b.sendMessageWithEdit(command, "Movie already in library\nAll commands have been cleared")
+		b.sendMessageWithEdit(command, "Фильм уже в библиотеке\nВсе команды сброшены")
 		return false
 	}
 
@@ -251,7 +251,7 @@ func (b *Bot) handleAddMovieYes(update tgbotapi.Update, command *userAddMovie) b
 		return false
 	}
 	if len(profiles) == 0 {
-		b.sendMessageWithEdit(command, "No quality profile(s) found on your radarr server.\nAll commands have been cleared.")
+		b.sendMessageWithEdit(command, "На вашем сервере Radarr не найдено профилей качества.\nВсе команды сброшены.")
 		b.clearState(update)
 	}
 	if len(profiles) == 1 {
@@ -270,7 +270,7 @@ func (b *Bot) handleAddMovieYes(update tgbotapi.Update, command *userAddMovie) b
 		command.rootFolder = rootFolders[0]
 	}
 	if len(rootFolders) == 0 {
-		b.sendMessageWithEdit(command, "No root folder(s) found on your radarr server.\nAll commands have been cleared.")
+		b.sendMessageWithEdit(command, "На вашем сервере Radarr не найдено корневых папок.\nВсе команды сброшены.")
 		b.clearState(update)
 	}
 	command.allRootFolders = rootFolders
@@ -309,7 +309,7 @@ func (b *Bot) showAddMovieProfiles(command *userAddMovie) bool {
 	)
 	keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, profileKeyboard...)
 	keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, keyboardGoBack.InlineKeyboard...)
-	messageText.WriteString("Select quality profile:")
+	messageText.WriteString("Выберите профиль качества:")
 	b.sendMessageWithEditAndKeyboard(
 		command,
 		keyboard,
@@ -354,7 +354,7 @@ func (b *Bot) showAddMovieRootFolders(command *userAddMovie) bool {
 	)
 	keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, rootFolderKeyboard...)
 	keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, keyboardGoBack.InlineKeyboard...)
-	messageText.WriteString("Select root folder:")
+	messageText.WriteString("Выберите корневую папку:")
 	b.sendMessageWithEditAndKeyboard(
 		command,
 		keyboard,
@@ -368,7 +368,7 @@ func (b *Bot) handleAddMovieRootFolder(update tgbotapi.Update, command *userAddM
 	data := strings.TrimPrefix(update.CallbackQuery.Data, "ROOTFOLDER_")
 	id, err := strconv.Atoi(data)
 	if err != nil {
-		msg := tgbotapi.NewMessage(command.chatID, "Invalid root folder selection.")
+		msg := tgbotapi.NewMessage(command.chatID, "Неверный выбор корневой папки.")
 		fmt.Println(err)
 		b.sendMessage(msg)
 		return false
@@ -382,7 +382,7 @@ func (b *Bot) handleAddMovieRootFolder(update tgbotapi.Update, command *userAddM
 	}
 
 	if command.rootFolder == nil {
-		msg := tgbotapi.NewMessage(command.chatID, "Root folder not found.")
+		msg := tgbotapi.NewMessage(command.chatID, "Корневая папка не найдена.")
 		fmt.Println(err)
 		b.sendMessage(msg)
 		return false
@@ -416,7 +416,7 @@ func (b *Bot) showAddMovieTags(command *userAddMovie) bool {
 	keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, tagsKeyboard...)
 
 	keyboardSubmitCancelGoBack := b.createKeyboard(
-		[]string{"Done - Continue", "\U0001F519"},
+		[]string{"Готово, продолжить", "\U0001F519"},
 		[]string{AddMovieTagsDone, AddMovieTagsGoBack},
 	)
 
@@ -426,7 +426,7 @@ func (b *Bot) showAddMovieTags(command *userAddMovie) bool {
 	editMsg := tgbotapi.NewEditMessageTextAndMarkup(
 		command.chatID,
 		command.messageID,
-		"Select tags:",
+		"Выберите теги:",
 		keyboard,
 	)
 	editMsg.ParseMode = "MarkdownV2"
@@ -442,7 +442,7 @@ func (b *Bot) handleAddMovieEditSelectTag(update tgbotapi.Update, command *userA
 	// Parse the tag ID
 	tagID, err := strconv.Atoi(tagIDStr)
 	if err != nil {
-		fmt.Printf("Cannot convert tag string to int: %v", err)
+		fmt.Printf("Не удалось преобразовать тег в число: %v", err)
 		return false
 	}
 	// Check if the tag is already selected
@@ -461,13 +461,13 @@ func (b *Bot) handleAddMovieEditSelectTag(update tgbotapi.Update, command *userA
 
 func (b *Bot) showAddMovieAddOptions(command *userAddMovie) bool {
 	keyboard := b.createKeyboard(
-		[]string{"Add movie monitored + search now", "Add movie monitored", "Add movie unmonitored", "Add collection monitored + search now", "Add collection monitored", "Cancel, clear command", "\U0001F519"},
+		[]string{"Добавить фильм: отслеживать и искать сразу", "Добавить фильм: отслеживать", "Добавить фильм: не отслеживать", "Добавить коллекцию: отслеживать и искать сразу", "Добавить коллекцию: отслеживать", "Отмена, сбросить команду", "\U0001F519"},
 		[]string{AddMovieMonSea, AddMovieMon, AddMovieUnMon, AddMovieColSea, AddMovieColMon, AddMovieCancel, AddMovieAddOptionsGoBack},
 	)
 	editMsg := tgbotapi.NewEditMessageTextAndMarkup(
 		command.chatID,
 		command.messageID,
-		"How would you like to add the movie?\n",
+		"Как добавить фильм?\n",
 		keyboard,
 	)
 	editMsg.ParseMode = "MarkdownV2"
@@ -560,9 +560,9 @@ func (b *Bot) addMovieToLibrary(update tgbotapi.Update, command *userAddMovie) b
 	}
 
 	if command.addMovieOptions.Monitor == "movieAndCollection" {
-		messageText = fmt.Sprintf("Collection '%v' added\n", movies[0].Title)
+		messageText = fmt.Sprintf("Коллекция «%v» добавлена\n", movies[0].Title)
 	} else {
-		messageText = fmt.Sprintf("Movie '%v' added\n", movies[0].Title)
+		messageText = fmt.Sprintf("Фильм «%v» добавлен\n", movies[0].Title)
 	}
 	b.sendMessageWithEdit(command, messageText)
 	b.clearState(update)

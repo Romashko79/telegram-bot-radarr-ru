@@ -38,7 +38,7 @@ const (
 func (b *Bot) libraryFiltered(update tgbotapi.Update) bool {
 	chatID, err := b.getChatID(update)
 	if err != nil {
-		fmt.Printf("Cannot manage library: %v", err)
+		fmt.Printf("Не удалось открыть библиотеку: %v", err)
 		return false
 	}
 
@@ -122,7 +122,7 @@ func (b *Bot) showLibraryMovieDetail(update tgbotapi.Update, command *userLibrar
 	if command.lastSearch.IsZero() {
 		lastSearchString = "" // Set empty string if the time is the zero value
 	} else {
-		lastSearchString = command.lastSearch.Format("02 Jan 06 - 15:04") // Convert non-zero time to string
+		lastSearchString = command.lastSearch.Format("02.01.06 - 15:04") // Convert non-zero time to string
 	}
 
 	var tagLabels []string
@@ -162,31 +162,31 @@ func (b *Bot) showLibraryMovieDetail(update tgbotapi.Update, command *userLibrar
 	// Create a message with movie details
 	var message strings.Builder
 	fmt.Fprintf(&message, "[%v](https://www.imdb.com/title/%v) \\- _%v_\n\n", utils.Escape(movie.Title), movie.ImdbID, movie.Year)
-	fmt.Fprintf(&message, "Monitored: %s\n", monitorIcon)
-	fmt.Fprintf(&message, "Status: %s\n", utils.Escape(movie.Status))
-	fmt.Fprintf(&message, "Last Manual Search: %s\n", utils.Escape(lastSearchString))
-	fmt.Fprintf(&message, "Size: %d GB\n", size/(1024*1024*1024))
-	fmt.Fprintf(&message, "Quality: %s\n", utils.Escape(quality))
-	fmt.Fprintf(&message, "Video Codec: %s\n", utils.Escape(videoCodec))
-	fmt.Fprintf(&message, "Video Dynamic Range: %s\n", utils.Escape(videoDynamicRange))
-	fmt.Fprintf(&message, "Audio Info: %s\n", utils.Escape(audioInfo))
-	fmt.Fprintf(&message, "Formats: %s\n", utils.Escape(formats))
-	fmt.Fprintf(&message, "Languages: %s\n", utils.Escape(languages))
-	fmt.Fprintf(&message, "Tags: %s\n", utils.Escape(tagsString))
-	fmt.Fprintf(&message, "Quality Profile: %s\n", utils.Escape(findQualityProfileByID(command.qualityProfiles, movie.QualityProfileID).Name))
-	fmt.Fprintf(&message, "Custom Format Score: %s\n", utils.Escape(customFormatScore))
+	fmt.Fprintf(&message, "Отслеживается: %s\n", monitorIcon)
+	fmt.Fprintf(&message, "Статус: %s\n", utils.Escape(movie.Status))
+	fmt.Fprintf(&message, "Последний ручной поиск: %s\n", utils.Escape(lastSearchString))
+	fmt.Fprintf(&message, "Размер: %d ГБ\n", size/(1024*1024*1024))
+	fmt.Fprintf(&message, "Качество: %s\n", utils.Escape(quality))
+	fmt.Fprintf(&message, "Видеокодек: %s\n", utils.Escape(videoCodec))
+	fmt.Fprintf(&message, "Динамический диапазон видео: %s\n", utils.Escape(videoDynamicRange))
+	fmt.Fprintf(&message, "Аудио: %s\n", utils.Escape(audioInfo))
+	fmt.Fprintf(&message, "Форматы: %s\n", utils.Escape(formats))
+	fmt.Fprintf(&message, "Языки: %s\n", utils.Escape(languages))
+	fmt.Fprintf(&message, "Теги: %s\n", utils.Escape(tagsString))
+	fmt.Fprintf(&message, "Профиль качества: %s\n", utils.Escape(findQualityProfileByID(command.qualityProfiles, movie.QualityProfileID).Name))
+	fmt.Fprintf(&message, "Рейтинг пользовательских форматов: %s\n", utils.Escape(customFormatScore))
 
 	messageText := message.String()
 
 	var keyboard tgbotapi.InlineKeyboardMarkup
 	if !movie.Monitored {
 		keyboard = b.createKeyboard(
-			[]string{"Monitor Movie", "Monitor Movie & Search Now", "Delete Movie", "Edit Movie", "\U0001F519"},
+			[]string{"Отслеживать фильм", "Отслеживать и искать сейчас", "Удалить фильм", "Изменить фильм", "\U0001F519"},
 			[]string{LibraryMovieMonitor, LibraryMovieMonitorSearchNow, LibraryMovieDelete, LibraryMovieEdit, LibraryMovieGoBack},
 		)
 	} else {
 		keyboard = b.createKeyboard(
-			[]string{"Unmonitor Movie", "Search Movie", "Delete Movie", "Edit Movie", "\U0001F519"},
+			[]string{"Не отслеживать фильм", "Искать фильм", "Удалить фильм", "Изменить фильм", "\U0001F519"},
 			[]string{LibraryMovieUnmonitor, LibraryMovieSearch, LibraryMovieDelete, LibraryMovieEdit, LibraryMovieGoBack},
 		)
 	}
@@ -283,7 +283,7 @@ func (b *Bot) handleLibraryMovieMonitorSearchNow(update tgbotapi.Update, command
 func (b *Bot) handleLibraryMovieDelete(command *userLibrary) bool {
 	messageText := fmt.Sprintf("[%v](https://www.imdb.com/title/%v) \\- _%v_\n\n", utils.Escape(command.movie.Title), command.movie.ImdbID, command.movie.Year)
 	keyboard := b.createKeyboard(
-		[]string{"Yes, delete this movie", "\U0001F519"},
+		[]string{"Да, удалить этот фильм", "\U0001F519"},
 		[]string{LibraryMovieDeleteYes, LibraryMovieDeleteNo},
 	)
 	// Send the message containing movie details along with the keyboard
@@ -308,7 +308,7 @@ func (b *Bot) handleLibraryMovieDeleteYes(update tgbotapi.Update, command *userL
 		b.sendMessage(msg)
 		return false
 	}
-	text := fmt.Sprintf("Movie '%v' deleted\n", command.movie.Title)
+	text := fmt.Sprintf("Фильм «%v» удалён\n", command.movie.Title)
 	b.clearState(update)
 	b.sendMessageWithEdit(command, text)
 	return true

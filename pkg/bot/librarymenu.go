@@ -17,7 +17,7 @@ const (
 	LibraryCancel         = "LIBRARY_CANCEL"
 	LibraryMenuActive     = "LIBRARYMENU"
 	LibraryFiltered       = "LIBRARYFILTERED"
-	CommandsCleared       = "All commands have been cleared"
+	CommandsCleared       = "Все команды сброшены"
 )
 
 const (
@@ -31,7 +31,7 @@ const (
 )
 
 func (b *Bot) processLibraryCommand(update tgbotapi.Update, userID int64, r *radarr.Radarr) {
-	msg := tgbotapi.NewMessage(userID, "Handling library command... please wait")
+	msg := tgbotapi.NewMessage(userID, "Обрабатываю команду библиотеки... подождите")
 	message, _ := b.sendMessage(msg)
 
 	qualityProfiles, err := r.GetQualityProfiles()
@@ -83,7 +83,7 @@ func (b *Bot) processLibraryCommand(update tgbotapi.Update, userID int64, r *rad
 func (b *Bot) libraryMenu(update tgbotapi.Update) bool {
 	userID, err := b.getChatID(update)
 	if err != nil {
-		fmt.Printf("Cannot manage library: %v", err)
+		fmt.Printf("Не удалось открыть библиотеку: %v", err)
 		return false
 	}
 
@@ -115,24 +115,24 @@ func (b *Bot) libraryMenu(update tgbotapi.Update) bool {
 func (b *Bot) showLibraryMenu(command *userLibrary) bool {
 	keyboard := [][]tgbotapi.InlineKeyboardButton{
 		{
-			tgbotapi.NewInlineKeyboardButtonData("Missing Movies", FilterMissing),
-			tgbotapi.NewInlineKeyboardButtonData("Wanted Movies", FilterWanted),
+			tgbotapi.NewInlineKeyboardButtonData("Отсутствующие фильмы", FilterMissing),
+			tgbotapi.NewInlineKeyboardButtonData("Разыскиваемые фильмы", FilterWanted),
 		},
 		{
-			tgbotapi.NewInlineKeyboardButtonData("Monitored Movies", FilterMonitored),
-			tgbotapi.NewInlineKeyboardButtonData("Unmonitored Movies", FilterUnmonitored),
+			tgbotapi.NewInlineKeyboardButtonData("Отслеживаемые фильмы", FilterMonitored),
+			tgbotapi.NewInlineKeyboardButtonData("Неотслеживаемые фильмы", FilterUnmonitored),
 		},
 		{
-			tgbotapi.NewInlineKeyboardButtonData("Movies on Disk", FilterOnDisk),
-			tgbotapi.NewInlineKeyboardButtonData("All Movies", FilterShowAll),
+			tgbotapi.NewInlineKeyboardButtonData("Фильмы на диске", FilterOnDisk),
+			tgbotapi.NewInlineKeyboardButtonData("Все фильмы", FilterShowAll),
 		},
 		{
-			tgbotapi.NewInlineKeyboardButtonData("Cancel - clear command", LibraryCancel),
+			tgbotapi.NewInlineKeyboardButtonData("Отмена, сбросить команду", LibraryCancel),
 		},
 	}
 	command.page = 0
 	b.setLibraryState(command.chatID, command)
-	b.sendMessageWithEditAndKeyboard(command, tgbotapi.InlineKeyboardMarkup{InlineKeyboard: keyboard}, "Select an option:")
+	b.sendMessageWithEditAndKeyboard(command, tgbotapi.InlineKeyboardMarkup{InlineKeyboard: keyboard}, "Выберите вариант:")
 	return false
 }
 
@@ -147,41 +147,41 @@ func (b *Bot) showLibraryMenuFiltered(command *userLibrary) bool {
 			return movie.Monitored
 		})
 		command.filter = FilterMonitored
-		responseText = "Monitored Movies"
+		responseText = "Отслеживаемые фильмы"
 	case FilterUnmonitored:
 		filteredMovies = filterMovies(command.library, func(movie *radarr.Movie) bool {
 			return !movie.Monitored
 		})
 		command.filter = FilterUnmonitored
-		responseText = "Unmonitored Movies"
+		responseText = "Неотслеживаемые фильмы"
 	case FilterMissing:
 		filteredMovies = filterMovies(command.library, func(movie *radarr.Movie) bool {
 			return movie.SizeOnDisk == 0 && movie.Monitored
 		})
 		command.filter = FilterMissing
-		responseText = "Missing Movies"
+		responseText = "Отсутствующие фильмы"
 	case FilterWanted:
 		filteredMovies = filterMovies(command.library, func(movie *radarr.Movie) bool {
 			return movie.SizeOnDisk == 0 && movie.Monitored && movie.IsAvailable
 		})
 		command.filter = FilterWanted
-		responseText = "Wanted Movies"
+		responseText = "Разыскиваемые фильмы"
 	case FilterOnDisk:
 		filteredMovies = filterMovies(command.library, func(movie *radarr.Movie) bool {
 			return movie.SizeOnDisk > 0
 		})
 		command.filter = FilterOnDisk
-		responseText = "Movies on Disk"
+		responseText = "Фильмы на диске"
 	case FilterShowAll:
 		filteredMovies = filterMovies(command.library, func(movie *radarr.Movie) bool {
 			return true // All movies included
 		})
 		command.filter = FilterShowAll
-		responseText = "All Movies"
+		responseText = "Все фильмы"
 	case FilterSearchResults:
 		filteredMovies = command.searchResultsInLibrary
 		command.filter = FilterSearchResults
-		responseText = "Search Results"
+		responseText = "Результаты поиска"
 	default:
 		command.filter = ""
 		b.setLibraryState(command.chatID, command)
@@ -192,7 +192,7 @@ func (b *Bot) showLibraryMenuFiltered(command *userLibrary) bool {
 	var row []tgbotapi.InlineKeyboardButton
 
 	if len(filteredMovies) == 0 {
-		responseText = "No movies found matching your filter criteria"
+		responseText = "Фильмов, подходящих под фильтр, не найдено"
 		row = append(row, tgbotapi.NewInlineKeyboardButtonData("\U0001F519", LibraryFilteredGoBack))
 		inlineKeyboard = append(inlineKeyboard, row)
 	} else {
@@ -209,7 +209,7 @@ func (b *Bot) showLibraryMenuFiltered(command *userLibrary) bool {
 			endIndex = len(filteredMovies)
 		}
 
-		responseText = fmt.Sprintf("%s - page %d/%d", responseText, page+1, totalPages)
+		responseText = fmt.Sprintf("%s - страница %d/%d", responseText, page+1, totalPages)
 
 		sort.SliceStable(filteredMovies, func(i, j int) bool {
 			return utils.IgnoreArticles(strings.ToLower(filteredMovies[i].Title)) < utils.IgnoreArticles(strings.ToLower(filteredMovies[j].Title))
@@ -273,11 +273,11 @@ func filterMovies(movies []*radarr.Movie, filterCondition func(movie *radarr.Mov
 
 func (b *Bot) handleSearchResults(update tgbotapi.Update, searchResults []*radarr.Movie, command *userLibrary) {
 	if len(searchResults) == 0 {
-		b.sendMessageWithEdit(command, "No movies found matching your search criteria")
+		b.sendMessageWithEdit(command, "По вашему запросу фильмы не найдены")
 		return
 	}
 	if len(searchResults) > 25 {
-		b.sendMessageWithEdit(command, "Result size too large, please narrow down your search criteria")
+		b.sendMessageWithEdit(command, "Слишком много результатов, уточните поисковый запрос")
 		return
 	}
 
@@ -289,7 +289,7 @@ func (b *Bot) handleSearchResults(update tgbotapi.Update, searchResults []*radar
 		}
 	}
 	if len(moviesInLibrary) == 0 {
-		b.sendMessageWithEdit(command, "No movies found in your library")
+		b.sendMessageWithEdit(command, "В вашей библиотеке нет фильмов")
 		return
 	}
 
