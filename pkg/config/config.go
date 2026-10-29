@@ -36,43 +36,43 @@ func LoadConfig() (Config, error) {
 
 	// Validate required fields
 	if config.TelegramBotToken == "" {
-		return config, errors.New("RBOT_TELEGRAM_BOT_TOKEN is empty or not set")
+		return config, errors.New("Переменная RBOT_TELEGRAM_BOT_TOKEN пуста или не задана")
 	}
 	if allowedUserIDs == "" {
-		return config, errors.New("RBOT_BOT_ALLOWED_USERIDS is empty or not set")
+		return config, errors.New("Переменная RBOT_BOT_ALLOWED_USERIDS пуста или не задана")
 	}
 	if botMaxItems == "" {
-		return config, errors.New("RBOT_BOT_MAX_ITEMS is empty or not set")
+		return config, errors.New("Переменная RBOT_BOT_MAX_ITEMS пуста или не задана")
 	}
 	if botIgnoreTags == "" {
-		return config, errors.New("RBOT_BOT_IGNORE_TAGS is empty or not set")
+		return config, errors.New("Переменная RBOT_BOT_IGNORE_TAGS пуста или не задана")
 	}
 	// Normalize and validate RBOT_RADARR_PROTOCOL
 	config.RadarrProtocol = strings.ToLower(config.RadarrProtocol)
 	if config.RadarrProtocol != "http" && config.RadarrProtocol != "https" {
-		return config, errors.New("RBOT_RADARR_PROTOCOL must be http or https")
+		return config, errors.New("Переменная RBOT_RADARR_PROTOCOL должна быть http или https")
 	}
 	if config.RadarrHostname == "" {
-		return config, errors.New("RBOT_RADARR_HOSTNAME is empty or not set")
+		return config, errors.New("Переменная RBOT_RADARR_HOSTNAME пуста или не задана")
 	}
 	if radarrPort == "" {
-		return config, errors.New("RBOT_RADARR_PORT is empty or not set")
+		return config, errors.New("Переменная RBOT_RADARR_PORT пуста или не задана")
 	}
 	if config.RadarrAPIKey == "" {
-		return config, errors.New("RBOT_RADARR_API_KEY is empty or not set")
+		return config, errors.New("Переменная RBOT_RADARR_API_KEY пуста или не задана")
 	}
 
 	// Parsing RBOT_BOT_MAX_ITEMS as a number
 	maxItems, err := strconv.Atoi(botMaxItems)
 	if err != nil {
-		return config, errors.New("RBOT_BOT_MAX_ITEMS is not a valid number")
+		return config, errors.New("Переменная RBOT_BOT_MAX_ITEMS должна быть числом")
 	}
 	config.MaxItems = maxItems
 
 	// Parsing RBOT_BOT_IGNORE_TAGS as a boolean
 	ignoreTags, err := strconv.ParseBool(botIgnoreTags)
 	if err != nil {
-		return config, errors.New("RBOT_BOT_IGNORE_TAGS is not a valid boolean")
+		return config, errors.New("Переменная RBOT_BOT_IGNORE_TAGS должна быть true или false")
 	}
 	config.IgnoreTags = ignoreTags
 
@@ -82,7 +82,7 @@ func LoadConfig() (Config, error) {
 	for _, id := range userIDs {
 		parsedID, err := strconv.ParseInt(id, 10, 64)
 		if err != nil {
-			return config, fmt.Errorf("RBOT_BOT_ALLOWED_USERIDS contains non-integer value: %s", err)
+			return config, fmt.Errorf("Переменная RBOT_BOT_ALLOWED_USERIDS содержит нецелое значение: %s", err)
 		}
 		parsedUserIDs[parsedID] = true
 	}
@@ -91,7 +91,7 @@ func LoadConfig() (Config, error) {
 	// Parsing RBOT_RADARR_PORT as a number
 	port, err := strconv.Atoi(radarrPort)
 	if err != nil {
-		return config, errors.New("RBOT_RADARR_PORT is not a valid number")
+		return config, errors.New("Переменная RBOT_RADARR_PORT должна быть числом")
 	}
 	config.RadarrPort = port
 
