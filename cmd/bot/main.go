@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	fmt.Println("Starting bot...")
+	fmt.Println("Запуск бота...")
 
 	// get config from environment variables
 	config, err := config.LoadConfig()
@@ -25,10 +25,10 @@ func main() {
 
 	b, err := tgbotapi.NewBotAPI(config.TelegramBotToken)
 	if err != nil {
-		log.Fatal("Error while starting bot: ", err)
+		log.Fatal("Ошибка при запуске бота: ", err)
 	}
 
-	fmt.Printf("Authorized on account %v\n", b.Self.UserName)
+	fmt.Printf("Авторизован как %v\n", b.Self.UserName)
 
 	radarrConfig := starr.New(config.RadarrAPIKey, fmt.Sprintf("%v://%v:%v%v", config.RadarrProtocol, config.RadarrHostname, config.RadarrPort, config.RadarrBaseUrl), 0)
 	radarrServer := radarr.New(radarrConfig)
@@ -48,7 +48,7 @@ func main() {
 
 			updatesChannel := b.GetUpdatesChan(updateConfig)
 			if err != nil {
-				log.Println("Error getting updates channel:", err)
+				log.Println("Ошибка получения канала обновлений:", err)
 				time.Sleep(5 * time.Second)
 				continue
 			}
