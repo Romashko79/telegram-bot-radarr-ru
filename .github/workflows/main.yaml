@@ -39,8 +39,6 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ honest_lowercase_variable }} 
-        env:
           images: ghcr.io/romashko79/telegram-bot-radarr-ru
           tags: |
             type=ref,event=branch
