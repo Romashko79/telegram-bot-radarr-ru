@@ -40,6 +40,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}
+          flavor: |
+            lowercase=true # <--- Добавьте эту строчку
           tags: |
             type=ref,event=branch
             type=ref,event=pr
