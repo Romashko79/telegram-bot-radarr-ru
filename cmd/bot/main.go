@@ -35,6 +35,9 @@ func main() {
 
 	botInstance := bot.New(&config, b, radarrServer)
 
+	// Receive Radarr webhook notifications (only if the webhook port is configured)
+	botInstance.StartWebhook()
+
 	// Channel for receiving updates from the bot API
 	updates := make(chan tgbotapi.Update)
 	defer close(updates)
