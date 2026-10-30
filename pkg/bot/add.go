@@ -461,8 +461,8 @@ func (b *Bot) handleAddMovieEditSelectTag(update tgbotapi.Update, command *userA
 
 func (b *Bot) showAddMovieAddOptions(command *userAddMovie) bool {
 	keyboard := b.createKeyboard(
-		[]string{"Добавить фильм: отслеживать и искать сразу", "Добавить фильм: отслеживать", "Добавить фильм: не отслеживать", "Добавить коллекцию: отслеживать и искать сразу", "Добавить коллекцию: отслеживать", "Отмена, сбросить команду", "\U0001F519"},
-		[]string{AddMovieMonSea, AddMovieMon, AddMovieUnMon, AddMovieColSea, AddMovieColMon, AddMovieCancel, AddMovieAddOptionsGoBack},
+		[]string{"Добавить и найти фильм", "Добавить и найти все фильмы франшизы", "Отмена, сбросить команду", "\U0001F519"},
+		[]string{AddMovieMonSea, AddMovieColSea, AddMovieCancel, AddMovieAddOptionsGoBack},
 	)
 	editMsg := tgbotapi.NewEditMessageTextAndMarkup(
 		command.chatID,
