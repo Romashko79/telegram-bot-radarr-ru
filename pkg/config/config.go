@@ -19,6 +19,8 @@ type Config struct {
 	RadarrPort       int
 	RadarrAPIKey     string
 	RadarrBaseUrl    string
+	WebhookPort      int
+	WebhookToken     string
 }
 
 func LoadConfig() (Config, error) {
@@ -94,6 +96,16 @@ func LoadConfig() (Config, error) {
 		return config, errors.New("Переменная RBOT_RADARR_PORT должна быть числом")
 	}
 	config.RadarrPort = port
+
+	// Optional: receiver for Radarr webhook notifications
+	config.WebhookToken = os.Getenv("RBOT_WEBHOOK_TOKEN")
+	if webhookPort := os.Getenv("RBOT_WEBHOOK_PORT"); webhookPort != "" {
+		wp, err := strconv.Atoi(webhookPort)
+		if err != nil {
+			return config, errors.New("Переменная RBOT_WEBHOOK_PORT должна быть числом")
+		}
+		config.WebhookPort = wp
+	}
 
 	return config, nil
 }
